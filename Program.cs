@@ -11,11 +11,11 @@ namespace TestesAutomatizados
 
             try
             {
-                // Exemplo: executa o teste de login
-                var loginTest = new Testes.LoginTest(automator, logger);
+                //executa o teste de login
+                var loginTest = new Testes.LoginTest(automator);
                 loginTest.Executar();
 
-                // Aqui você pode chamar outros testes (CadastroClienteTest, FechamentoCaixaTest, etc.)
+                //  chama outros testes (CadastroClienteTest, FechamentoCaixaTest, etc.)
             }
             catch (Exception ex)
             {

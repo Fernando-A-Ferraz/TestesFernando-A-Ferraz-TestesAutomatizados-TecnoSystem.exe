@@ -12,7 +12,7 @@ namespace TestesAutomatizados
 {
     public class TecnoSystemAutomator
     {
-        public Application? _app; // Agora nullable
+        public Application? _app;
         public UIA2Automation _automation;
         public ConditionFactory _cf;
         private readonly Utils.TestLogger? _logger;
@@ -30,7 +30,7 @@ namespace TestesAutomatizados
             _logger = logger;
         }
 
-        public Window? AbrirELogar() // Retorno agora nullable
+        public Window? AbrirELogar()
         {
             try
             {

@@ -1,5 +1,4 @@
 using System;
-using FlaUI.Core.AutomationElements;
 
 namespace TestesAutomatizados.Testes
 {
@@ -8,10 +7,13 @@ namespace TestesAutomatizados.Testes
         private readonly TecnoSystemAutomator _automator;
         private readonly Utils.TestLogger _logger;
 
-        public LoginTest(TecnoSystemAutomator automator, Utils.TestLogger logger)
+        public LoginTest(TecnoSystemAutomator automator)
         {
+            string testName = GetType().Name;
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            string logFileName = $"Logs/{testName}_{timestamp}.log";
+            _logger = new Utils.TestLogger(logFileName);
             _automator = automator;
-            _logger = logger;
         }
 
         public void Executar()

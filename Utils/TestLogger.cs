@@ -9,7 +9,7 @@ namespace TestesAutomatizados.Utils
 
         public TestLogger(string logPath)
         {
-            _logPath = logPath ?? throw new ArgumentNullException(nameof(logPath)); // Garante não nulo
+            _logPath = logPath ?? throw new ArgumentNullException(nameof(logPath));
             Directory.CreateDirectory(Path.GetDirectoryName(_logPath) ?? ".");
         }
 
