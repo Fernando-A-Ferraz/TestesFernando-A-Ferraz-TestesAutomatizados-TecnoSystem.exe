@@ -15,7 +15,10 @@ namespace TestesAutomatizados
                 var loginTest = new Testes.LoginTest(automator);
                 loginTest.Executar();
 
-                //  chama outros testes (CadastroClienteTest, FechamentoCaixaTest, etc.)
+                //executa o teste de emissão de nota fiscal com múltiplas finalizadoras
+                logger.Log("Iniciando teste de emissão de nota fiscal com múltiplas finalizadoras...");
+                var emissaoNotaTest = new Testes.EmissaoNotaFiscalMultiplasFinalizadorasTest(automator);
+                emissaoNotaTest.Executar();
             }
             catch (Exception ex)
             {
