@@ -17,15 +17,49 @@ namespace TestesAutomatizados.Testes
         }
 
         public void Executar()
-        {
-            _logger.Log("Iniciando teste de emissão de nota fiscal com múltiplas finalizadoras...");
+{
+    _logger.Log("Iniciando teste de emissão de nota fiscal com múltiplas finalizadoras...");
 
-            var mainWindow = _automator.AbrirELogar();
-            if (mainWindow == null)
-            {
-                _logger.Log("Falha ao logar no sistema.");
-                return;
-            }
+    var mainWindow = _automator.AbrirELogar();
+    if (mainWindow == null)
+    {
+        _logger.Log("Falha ao logar no sistema.");
+        return;
+    }
+
+    _logger.Log("Procurando menu Movimentações...");
+    var menuMovimentacoes = mainWindow.FindFirstDescendant(_automator._cf.ByAutomationId("MniMovimentacoes"));
+    if (menuMovimentacoes == null)
+    {
+        _logger.Log("Menu Movimentações não encontrado.");
+        return;
+    }
+    menuMovimentacoes.Click();
+    _logger.Log("Menu Movimentações clicado.");
+
+    _logger.Log("Procurando submenu NFe...");
+    var menuNFe = mainWindow.FindFirstDescendant(_automator._cf.ByAutomationId("MniNFe"));
+    if (menuNFe == null)
+    {
+        _logger.Log("Submenu NFe não encontrado.");
+        return;
+    }
+    menuNFe.Focus();
+    menuNFe.Click();
+    _logger.Log("Mouse passou sobre submenu NFe.");
+
+    _logger.Log("Procurando Gerenciador de Notas Fiscais Eletrônicas...");
+    var menuGerenciadorNFe = mainWindow.FindFirstDescendant(_automator._cf.ByAutomationId("MniGerenciadorNFe"));
+    if (menuGerenciadorNFe == null)
+    {
+        _logger.Log("Menu Gerenciador de Notas Fiscais Eletrônicas não encontrado.");
+        return;
+    }
+    menuGerenciadorNFe.Click();
+    _logger.Log("Menu Gerenciador de Notas Fiscais Eletrônicas clicado.");
+
+    // Continue a automação a partir daqui...
+
 
             // Aqui você vai, passo a passo, simular o fluxo da nota fiscal.
             // Exemplo de passos:

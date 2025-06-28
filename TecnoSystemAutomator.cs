@@ -12,8 +12,8 @@ namespace TestesAutomatizados
 {
     public class TecnoSystemAutomator
     {
-        public Application? _app;
-        public UIA2Automation _automation;
+        private Application? _app;
+        private UIA2Automation _automation;
         public ConditionFactory _cf;
         private readonly Utils.TestLogger? _logger;
 
@@ -23,6 +23,8 @@ namespace TestesAutomatizados
         public string Senha { get; set; } = "572600";
         public string ParteTituloJanelaPrincipal { get; set; } = "TecnoSystem Versão";
 
+        private Window? _mainWindow; // <--- Armazene a janela principal
+
         public TecnoSystemAutomator(Utils.TestLogger? logger = null)
         {
             _automation = new UIA2Automation();
@@ -30,8 +32,18 @@ namespace TestesAutomatizados
             _logger = logger;
         }
 
+        /// <summary>
+        /// Abre e loga apenas se ainda não estiver aberto/logado.
+        /// Sempre retorna a mainWindow já logada.
+        /// </summary>
         public Window? AbrirELogar()
         {
+            if (_mainWindow != null && !_mainWindow.IsOffscreen)
+            {
+                // Já estamos logados e com a janela aberta!
+                return _mainWindow;
+            }
+
             try
             {
                 _logger?.Log("Tentando iniciar a aplicação TecnoSystem...");
@@ -115,6 +127,7 @@ namespace TestesAutomatizados
                 {
                     mainWindow.Focus();
                     _logger?.Log($"Janela principal (pós-login) encontrada: '{mainWindow.Title}'");
+                    _mainWindow = mainWindow; // <-- Armazene a janela principal!
                     return mainWindow;
                 }
                 else
@@ -130,12 +143,18 @@ namespace TestesAutomatizados
             }
         }
 
+        /// <summary>
+        /// Retorna a janela principal já logada, se existir.
+        /// </summary>
+        public Window? MainWindow => _mainWindow;
+
         public void FecharAplicacao()
         {
             _logger?.Log("Tentando fechar a aplicação TecnoSystem...");
             _app?.Close();
             _app?.Dispose();
             _automation?.Dispose();
+            _mainWindow = null;
             _logger?.Log("Aplicação e recursos de automação liberados.");
         }
     }
