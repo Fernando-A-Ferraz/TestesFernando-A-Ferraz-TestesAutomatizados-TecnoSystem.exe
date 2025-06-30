@@ -12,10 +12,10 @@ namespace TestesAutomatizados
 {
     public class TecnoSystemAutomator
     {
-        private Application? _app;
-        private UIA2Automation _automation;
+        public Application? _app;
+        public UIA2Automation _automation;
         public ConditionFactory _cf;
-        private readonly Utils.TestLogger? _logger;
+        public Utils.TestLogger? Logger { get; }
 
         public string CaminhoDaAplicacao { get; set; } = @"D:\TecnoSystem\TecnoSystem.exe";
         public string TituloLoginWindow { get; set; } = "...::: TecnoSystem :::...";
@@ -29,7 +29,7 @@ namespace TestesAutomatizados
         {
             _automation = new UIA2Automation();
             _cf = new ConditionFactory(_automation.PropertyLibrary);
-            _logger = logger;
+            Logger = logger;
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace TestesAutomatizados
 
             try
             {
-                _logger?.Log("Tentando iniciar a aplicação TecnoSystem...");
+                Logger?.Log("Tentando iniciar a aplicação TecnoSystem...");
                 _app = Application.Launch(CaminhoDaAplicacao);
                 Thread.Sleep(5000);
 
@@ -56,18 +56,18 @@ namespace TestesAutomatizados
                 if (initialWindow != null && initialWindow.Title == TituloLoginWindow)
                 {
                     loginWindow = initialWindow.AsWindow();
-                    _logger?.Log($"Janela de login encontrada via GetMainWindow: '{loginWindow.Title}'");
+                    Logger?.Log($"Janela de login encontrada via GetMainWindow: '{loginWindow.Title}'");
                 }
                 else
                 {
-                    _logger?.Log($"GetMainWindow retornou '{initialWindow?.Title}', que não é a janela de login esperada ('{TituloLoginWindow}'). Buscando no desktop...");
+                    Logger?.Log($"GetMainWindow retornou '{initialWindow?.Title}', que não é a janela de login esperada ('{TituloLoginWindow}'). Buscando no desktop...");
                     var desktop = _automation.GetDesktop();
                     loginWindow = desktop.FindFirstChild(_cf.ByControlType(ControlType.Window).And(_cf.ByName(TituloLoginWindow)))?.AsWindow();
                 }
 
                 if (loginWindow == null)
                 {
-                    _logger?.Log($"Janela de login com título '{TituloLoginWindow}' não encontrada.");
+                    Logger?.Log($"Janela de login com título '{TituloLoginWindow}' não encontrada.");
                     return null;
                 }
 
@@ -75,7 +75,7 @@ namespace TestesAutomatizados
                 Thread.Sleep(500);
 
                 var txtUsuario = loginWindow.FindFirstDescendant(_cf.ByAutomationId("TxtUsuarioCodigo"))?.AsTextBox();
-                if (txtUsuario == null) { _logger?.Log("Campo Usuário não encontrado."); return null; }
+                if (txtUsuario == null) { Logger?.Log("Campo Usuário não encontrado."); return null; }
                 txtUsuario.Text = Usuario;
                 Thread.Sleep(100);
                 Keyboard.Press(VirtualKeyShort.ENTER);
@@ -90,13 +90,13 @@ namespace TestesAutomatizados
                     else if (allEdits.Length == 1 && allEdits[0].AutomationId != "TxtUsuarioCodigo")
                         txtSenha = allEdits[0].AsTextBox();
                 }
-                if (txtSenha == null) { _logger?.Log("Campo Senha não encontrado."); return null; }
+                if (txtSenha == null) { Logger?.Log("Campo Senha não encontrado."); return null; }
                 txtSenha.Focus();
                 txtSenha.Text = Senha;
                 Thread.Sleep(500);
 
                 var btnAcessarSistema = loginWindow.FindFirstDescendant(_cf.ByName("Acessar Sistema").And(_cf.ByControlType(ControlType.Button)))?.AsButton();
-                if (btnAcessarSistema == null) { _logger?.Log("Botão 'Acessar Sistema' não encontrado."); return null; }
+                if (btnAcessarSistema == null) { Logger?.Log("Botão 'Acessar Sistema' não encontrado."); return null; }
                 btnAcessarSistema.Click();
                 Thread.Sleep(5000);
 
@@ -126,19 +126,19 @@ namespace TestesAutomatizados
                 if (mainWindow != null)
                 {
                     mainWindow.Focus();
-                    _logger?.Log($"Janela principal (pós-login) encontrada: '{mainWindow.Title}'");
+                    Logger?.Log($"Janela principal (pós-login) encontrada: '{mainWindow.Title}'");
                     _mainWindow = mainWindow; // <-- Armazene a janela principal!
                     return mainWindow;
                 }
                 else
                 {
-                    _logger?.Log($"Janela principal (pós-login) com título contendo '{ParteTituloJanelaPrincipal}' não encontrada.");
+                    Logger?.Log($"Janela principal (pós-login) com título contendo '{ParteTituloJanelaPrincipal}' não encontrada.");
                     return null;
                 }
             }
             catch (Exception ex)
             {
-                _logger?.Log($"Ocorreu um erro em AbrirELogar: {ex.Message}\n{ex.StackTrace}");
+                Logger?.Log($"Ocorreu um erro em AbrirELogar: {ex.Message}\n{ex.StackTrace}");
                 return null;
             }
         }
@@ -148,14 +148,14 @@ namespace TestesAutomatizados
         /// </summary>
         public Window? MainWindow => _mainWindow;
 
-        public void FecharAplicacao()
-        {
-            _logger?.Log("Tentando fechar a aplicação TecnoSystem...");
-            _app?.Close();
-            _app?.Dispose();
-            _automation?.Dispose();
-            _mainWindow = null;
-            _logger?.Log("Aplicação e recursos de automação liberados.");
-        }
+       // public void FecharAplicacao()
+        //{
+          //  Logger?.Log("Tentando fechar a aplicação TecnoSystem...");
+           // _app?.Close();
+          //  _app?.Dispose();
+        //    _automation?.Dispose();
+          //  _mainWindow = null;
+            //Logger?.Log("Aplicação e recursos de automação liberados.");
+        //}
     }
 }
