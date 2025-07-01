@@ -22,6 +22,9 @@ namespace TestesAutomatizados.Testes
             _automator = automator;
         }
 
+        // =================================================================================
+        // MÉTODO PRINCIPAL DO TESTE
+        // =================================================================================
         public void Executar()
         {
             Window? mainWindow = _automator.MainWindow;
@@ -34,6 +37,7 @@ namespace TestesAutomatizados.Testes
 
             try
             {
+                // SEU CÓDIGO ORIGINAL - NAVEGAÇÃO E ABERTURA DAS JANELAS (está perfeito)
                 _automator.Logger?.Log("Iniciando navegação no menu para emissão de NF-e...");
                 var menuMovimentacoes = mainWindow.FindFirstDescendant(cf.ByAutomationId("MniMovimentacoes"))?.AsMenuItem();
                 if (menuMovimentacoes == null) { _automator.Logger?.Log("ERRO: Menu 'Movimentações' não encontrado."); return; }
@@ -53,166 +57,138 @@ namespace TestesAutomatizados.Testes
                 string tituloGerenciadorWindow = "...::: Gerenciador de Notas Fiscais Eletrônicas :::...";
                 Window? gerenciadorWindow = null;
                 int retries = 10;
-                TimeSpan delayEntreTentativas = TimeSpan.FromMilliseconds(500);
-
                 while (gerenciadorWindow == null && retries > 0)
                 {
-                    gerenciadorWindow = app.GetAllTopLevelWindows(automation).FirstOrDefault(w => w.Title == tituloGerenciadorWindow)?.AsWindow();
-                    if (gerenciadorWindow == null)
-                    {
-                        gerenciadorWindow = automation.GetDesktop().FindFirstChild(cf.ByName(tituloGerenciadorWindow).And(cf.ByControlType(ControlType.Window)))?.AsWindow();
-                    }
+                    gerenciadorWindow = app.GetAllTopLevelWindows(automation).FirstOrDefault(w => w.Title == tituloGerenciadorWindow);
                     if (gerenciadorWindow != null) break;
-                    Thread.Sleep(delayEntreTentativas);
+                    Thread.Sleep(500);
                     retries--;
-                    _automator.Logger?.Log($"Tentando encontrar '{tituloGerenciadorWindow}', tentativas restantes: {retries}");
                 }
-
                 if (gerenciadorWindow == null) { _automator.Logger?.Log($"ERRO: Janela '{tituloGerenciadorWindow}' NÃO encontrada."); return; }
                 _automator.Logger?.Log($"Janela '{tituloGerenciadorWindow}' encontrada!");
                 gerenciadorWindow.Focus();
                 Thread.Sleep(500);
 
-                // Clica em Nova NFe
                 var btnNovaNFe = gerenciadorWindow.FindFirstDescendant(cf.ByName("Nova NFe").And(cf.ByControlType(ControlType.Button)))?.AsButton();
                 if (btnNovaNFe == null) { _automator.Logger?.Log("ERRO: Botão 'Nova NFe' NÃO encontrado."); return; }
                 btnNovaNFe.Click();
                 Thread.Sleep(500);
-
-                // Aguarda e encontra a janela correta de emissão
+                
                 string tituloEmissaoNFe = "...::: Emissão Nota Fiscal Eletrônica :::...";
                 Window? emissaoNFeWindow = null;
-                retries = 15;
-                IntPtr gerenciadorHandle = gerenciadorWindow.Properties.NativeWindowHandle.ValueOrDefault;
-
+                retries = 10;
                 while (emissaoNFeWindow == null && retries > 0)
                 {
-                    emissaoNFeWindow = app.GetAllTopLevelWindows(automation).FirstOrDefault(w =>
-                        w.Title == tituloEmissaoNFe && (gerenciadorHandle == IntPtr.Zero || w.Properties.NativeWindowHandle.ValueOrDefault != gerenciadorHandle)
-                    )?.AsWindow();
-
-                    if (emissaoNFeWindow == null)
-                    {
-                        emissaoNFeWindow = automation.GetDesktop()
-                            .FindFirstChild(cf.ByName(tituloEmissaoNFe).And(cf.ByControlType(ControlType.Window)))?.AsWindow();
-                        if (emissaoNFeWindow != null && gerenciadorHandle != IntPtr.Zero && emissaoNFeWindow.Properties.NativeWindowHandle.ValueOrDefault == gerenciadorHandle)
-                        {
-                            emissaoNFeWindow = null;
-                        }
-                    }
+                    emissaoNFeWindow = app.GetAllTopLevelWindows(automation).FirstOrDefault(w => w.Title == tituloEmissaoNFe);
                     if (emissaoNFeWindow != null) break;
-                    Thread.Sleep(delayEntreTentativas);
+                    Thread.Sleep(500);
                     retries--;
-                    _automator.Logger?.Log($"Tentando encontrar '{tituloEmissaoNFe}', tentativas restantes: {retries}");
                 }
-
                 if (emissaoNFeWindow == null) { _automator.Logger?.Log($"ERRO: Janela '{tituloEmissaoNFe}' NÃO encontrada."); return; }
                 _automator.Logger?.Log($"Janela '{tituloEmissaoNFe}' encontrada!");
                 emissaoNFeWindow.Focus();
                 Thread.Sleep(500);
 
-                // Preencher aba Cabeçalho
                 var tabCabecalho = emissaoNFeWindow.FindFirstDescendant(cf.ByName("Cabeçalho").And(cf.ByControlType(ControlType.TabItem)))?.AsTabItem();
                 if (tabCabecalho == null) { _automator.Logger?.Log("Aba 'Cabeçalho' não encontrada."); return; }
-                _automator.Logger?.Log("Aba 'Cabeçalho' encontrada.");
 
-                // Natureza Operação
-                _automator.Logger?.Log("Tentando encontrar campo 'Natureza Operação'...");
-                TextBox editNaturezaOp = null;
-                {
-                    var labelNaturezaOp = tabCabecalho.FindFirstDescendant(cf.ByName("Natureza Operação:").And(cf.ByControlType(ControlType.Text)));
-                    if (labelNaturezaOp != null)
-                    {
-                        var parentOfLabelNatOp = labelNaturezaOp.Parent;
-                        if (parentOfLabelNatOp != null)
-                        {
-                            var childrenOfParentNatOp = parentOfLabelNatOp.FindAllChildren();
-                            bool labelNatOpFound = false;
-                            foreach (var child in childrenOfParentNatOp)
-                            {
-                                if (labelNatOpFound && child.ControlType == ControlType.Edit)
-                                {
-                                    editNaturezaOp = child.AsTextBox();
-                                    break;
-                                }
-                                if (child.Equals(labelNaturezaOp)) { labelNatOpFound = true; }
-                            }
-                        }
-                    }
-                }
+                var editNaturezaOp = FindTextBoxByLabel(tabCabecalho, "Natureza Operação:", cf);
+                editNaturezaOp?.Enter("2");
+                Keyboard.Press(VirtualKeyShort.ENTER);
+                Thread.Sleep(500);
 
-                if (editNaturezaOp != null)
-                {
-                    _automator.Logger?.Log("Preenchendo Natureza Operação com '2'...");
-                    editNaturezaOp.Text = "2";
-                    Thread.Sleep(200);
-                    Keyboard.Press(VirtualKeyShort.ENTER);
-                    Thread.Sleep(500);
-                    _automator.Logger?.Log("Natureza Operação preenchida.");
-                }
-                else { _automator.Logger?.Log("Campo 'Natureza Operação' NÃO encontrado. Não foi possível preencher."); }
-
-                // Cliente/Fornecedor - Código
-                _automator.Logger?.Log("Tentando encontrar campo 'Cliente/Fornecedor - Código'...");
-                TextBox editClienteCod = null;
-                {
-                    var groupClienteFornecedor = tabCabecalho.FindFirstDescendant(cf.ByName("Cliente / Fornecedor").And(cf.ByControlType(ControlType.Group)));
-                    if (groupClienteFornecedor != null)
-                    {
-                        var labelCodigoCliente = groupClienteFornecedor.FindFirstDescendant(cf.ByName("Código:").And(cf.ByControlType(ControlType.Text)));
-                        if (labelCodigoCliente != null)
-                        {
-                            var parentOfLabelCodigo = labelCodigoCliente.Parent;
-                            if (parentOfLabelCodigo != null)
-                            {
-                                var childrenOfParentCodigo = parentOfLabelCodigo.FindAllChildren();
-                                bool labelCodigoFound = false;
-                                foreach (var child in childrenOfParentCodigo)
-                                {
-                                    if (labelCodigoFound && child.ControlType == ControlType.Edit)
-                                    {
-                                        editClienteCod = child.AsTextBox();
-                                        break;
-                                    }
-                                    if (child.Equals(labelCodigoCliente))
-                                    {
-                                        labelCodigoFound = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (editClienteCod != null)
-                {
-                    _automator.Logger?.Log("Preenchendo Cliente/Fornecedor Código com '102'...");
-                    editClienteCod.Text = "102";
-                    Thread.Sleep(200);
-                    Keyboard.Press(VirtualKeyShort.ENTER);
-                    Thread.Sleep(1000);
-                    _automator.Logger?.Log("Cliente/Fornecedor Código preenchido.");
-                }
-                else { _automator.Logger?.Log("Campo 'Cliente/Fornecedor - Código' NÃO encontrado. Não foi possível preencher."); }
-
-                // Selecionar aba Produtos
-                var tabProdutos = emissaoNFeWindow.FindFirstDescendant(cf.ByName("Produtos").And(cf.ByControlType(ControlType.TabItem)))?.AsTabItem();
-                if (tabProdutos == null)
-                {
-                    _automator.Logger?.Log("ERRO: Aba 'Produtos' NÃO encontrada.");
-                    return;
-                }
-                tabProdutos.Select();
+                var editClienteCod = FindTextBoxByLabel(tabCabecalho, "Código:", cf);
+                editClienteCod?.Enter("102");
+                Keyboard.Press(VirtualKeyShort.ENTER);
                 Thread.Sleep(1000);
 
-                _automator.Logger?.Log("Campos preenchidos e aba Produtos selecionada com sucesso!");
-                // ... continue sua lógica de teste a partir daqui ...
+             
+
+                // 1. Selecionar aba Produtos
+                var tabProdutos = emissaoNFeWindow.FindFirstDescendant(cf.ByName("Produtos").And(cf.ByControlType(ControlType.TabItem)))?.AsTabItem();
+                if (tabProdutos == null) { _automator.Logger?.Log("ERRO: Aba 'Produtos' NÃO encontrada."); return; }
+                tabProdutos.Select();
+                Thread.Sleep(500);
+                _automator.Logger?.Log("Aba 'Produtos' selecionada com sucesso.");
+
+                // 2. Clicar em "Novo Produto"
+                var btnNovoProduto = tabProdutos.FindFirstDescendant(cf.ByName("Novo Produto").And(cf.ByControlType(ControlType.Button)))?.AsButton();
+                if (btnNovoProduto == null) { _automator.Logger?.Log("ERRO: Botão 'Novo Produto' não encontrado."); return; }
+                btnNovoProduto.Click();
+                Thread.Sleep(500);
+
+                // 3. Preencher Código do Produto
+                var txtCodigoProduto = FindTextBoxByLabel(tabProdutos, "Código:", cf);
+                if (txtCodigoProduto == null) { _automator.Logger?.Log("ERRO: Campo 'Código' do produto não encontrado."); return; }
+                txtCodigoProduto.Enter("1");
+                Keyboard.Press(VirtualKeyShort.ENTER);
+                Thread.Sleep(1000);
+
+                // 4. Preencher Valor Unitário
+                var txtValorUnitario = FindTextBoxByLabel(tabProdutos, "Valor Unitário:", cf);
+                if (txtValorUnitario == null) { _automator.Logger?.Log("ERRO: Campo 'Valor Unitário' do produto não encontrado."); return; }
+                txtValorUnitario.Enter("200");
+                Keyboard.Press(VirtualKeyShort.ENTER);
+                Thread.Sleep(500);
+                
+                // 5. Clicar em "Salvar Produto"
+                var btnSalvarProduto = tabProdutos.FindFirstDescendant(cf.ByName("Salvar Produto").And(cf.ByControlType(ControlType.Button)))?.AsButton();
+                if (btnSalvarProduto == null) { _automator.Logger?.Log("ERRO: Botão 'Salvar Produto' não encontrado."); return; }
+                btnSalvarProduto.Click();
+                Thread.Sleep(1000);
+
+                // 6. Encontrar a janela de aviso "Produto salvo com sucesso!" e clicar em OK
+                _automator.Logger?.Log("Aguardando janela de confirmação...");
+                // <<-- IMPORTANTE: Verifique se o título da janela é "Aviso" ou algo diferente
+                string tituloJanelaAviso = "Aviso"; 
+                Window? avisoWindow = null;
+                retries = 10;
+                while (avisoWindow == null && retries > 0)
+                {
+                    // A busca é feita exatamente como você fez para as outras janelas
+                    avisoWindow = app.GetAllTopLevelWindows(automation).FirstOrDefault(w => w.Title.Contains(tituloJanelaAviso));
+                    if (avisoWindow != null) break;
+                    Thread.Sleep(500);
+                    retries--;
+                }
+                
+                if (avisoWindow == null) { _automator.Logger?.Log($"ERRO: Janela de confirmação '{tituloJanelaAviso}' não encontrada."); return; }
+                
+                _automator.Logger?.Log("Janela de confirmação encontrada!");
+                avisoWindow.Focus();
+                
+                // O botão OK tem AutomationId, então é mais fácil de achar
+                var btnOk = avisoWindow.FindFirstDescendant(cf.ByAutomationId("BtnOk"))?.AsButton();
+                if (btnOk == null) { _automator.Logger?.Log("ERRO: Botão 'Ok' (BtnOk) na janela de aviso não encontrado."); return; }
+                btnOk.Click();
+                _automator.Logger?.Log("Botão 'Ok' clicado. Produto salvo com sucesso!");
             }
             catch (Exception ex)
             {
-                _automator.Logger?.Log($"[FATAL] ERRO NO TESTE TestesNfesComMultiplasFinalizadoras: {ex.Message}\n{ex.StackTrace}");
+                _automator.Logger?.Log($"[FATAL] ERRO NO TESTE: {ex.Message}\n{ex.StackTrace}");
                 throw;
             }
+        }
+
+        // Este método auxiliar é útil e não causa erros. Ele apenas organiza
+        // a lógica de encontrar um campo pelo seu texto de rótulo.
+        private TextBox? FindTextBoxByLabel(AutomationElement container, string labelText, ConditionFactory cf)
+        {
+            var label = container.FindFirstDescendant(cf.ByName(labelText).And(cf.ByControlType(ControlType.Text)));
+            if (label == null) return null;
+
+            var parent = label.Parent;
+            if (parent != null)
+            {
+                var children = parent.FindAllChildren();
+                bool labelFound = false;
+                foreach (var child in children)
+                {
+                    if (labelFound && child.ControlType == ControlType.Edit) return child.AsTextBox();
+                    if (child.Equals(label)) labelFound = true;
+                }
+            }
+            return null;
         }
     }
 }
