@@ -31,12 +31,12 @@ namespace TestesAutomatizados
             {
                 logger.Log($"[FATAL] Erro inesperado no orquestrador principal: {ex.Message}\n{ex.StackTrace}");
             }
-           //finally
-           /// {
-               // automator.FecharAplicacao();
-                //Console.WriteLine("Todos os testes foram finalizados. Pressione qualquer tecla para fechar.");
-                //Console.ReadKey();
-          //  }
+           finally
+            {
+                automator.FecharAplicacao();
+                Console.WriteLine("Todos os testes foram finalizados. Pressione qualquer tecla para fechar.");
+                Console.ReadKey();
+            }
         }
     }
 }

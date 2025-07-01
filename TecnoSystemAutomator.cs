@@ -48,7 +48,7 @@ namespace TestesAutomatizados
             {
                 Logger?.Log("Tentando iniciar a aplicação TecnoSystem...");
                 _app = Application.Launch(CaminhoDaAplicacao);
-                Thread.Sleep(5000);
+                Thread.Sleep(1000);
 
                 Window? loginWindow = null;
                 var initialWindow = _app.GetMainWindow(_automation, TimeSpan.FromSeconds(15));
@@ -98,14 +98,14 @@ namespace TestesAutomatizados
                 var btnAcessarSistema = loginWindow.FindFirstDescendant(_cf.ByName("Acessar Sistema").And(_cf.ByControlType(ControlType.Button)))?.AsButton();
                 if (btnAcessarSistema == null) { Logger?.Log("Botão 'Acessar Sistema' não encontrado."); return null; }
                 btnAcessarSistema.Click();
-                Thread.Sleep(5000);
+                Thread.Sleep(1000);
 
                 Window? mainWindow = null;
                 IntPtr loginWindowHandle = loginWindow.Properties.NativeWindowHandle.ValueOrDefault;
                 int retries = 10;
                 while (mainWindow == null && retries > 0)
                 {
-                    Thread.Sleep(1500);
+                    Thread.Sleep(1000);
                     var allAppWindows = _app.GetAllTopLevelWindows(_automation);
                     foreach (var currentWindowElement in allAppWindows)
                     {
@@ -143,19 +143,19 @@ namespace TestesAutomatizados
             }
         }
 
-        /// <summary>
+         //<summary>
         /// Retorna a janela principal já logada, se existir.
-        /// </summary>
+       // </summary>
         public Window? MainWindow => _mainWindow;
 
-       // public void FecharAplicacao()
-        //{
-          //  Logger?.Log("Tentando fechar a aplicação TecnoSystem...");
-           // _app?.Close();
-          //  _app?.Dispose();
-        //    _automation?.Dispose();
-          //  _mainWindow = null;
-            //Logger?.Log("Aplicação e recursos de automação liberados.");
-        //}
+        public void FecharAplicacao()
+        {
+          Logger?.Log("Tentando fechar a aplicação TecnoSystem...");
+           _app?.Close();
+           _app?.Dispose();
+           _automation?.Dispose();
+           _mainWindow = null;
+            Logger?.Log("Aplicação e recursos de automação liberados.");
+        }
     }
 }
