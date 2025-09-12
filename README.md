@@ -43,11 +43,14 @@ Automatizar fluxos críticos do sistema TecnoSystem, garantindo a repetibilidade
 
 ## Plano de Casos de Teste
 
-| ID   | Nome do Teste                    | Pré-requisito     | Passos                                                                            | Resultado Esperado                         |
-|------|-----------------------------------|-------------------|-----------------------------------------------------------------------------------|--------------------------------------------|
-| T01  | Login válido                      | App instalado     | 1. Abrir app<br>2. Preencher usuário/senha<br>3. Clicar em Login                  | Tela inicial do sistema visível            |
-| T02  | Cadastro de cliente               | Login realizado   | 1. Acessar menu Cadastro<br>2. Preencher dados<br>3. Salvar                       | Mensagem de sucesso, cliente cadastrado    |
-| T03  | Fechamento de caixa               | Login realizado   | 1. Abrir módulo Caixa<br>2. Realizar fechamento<br>3. Confirmar                   | Caixa fechado com sucesso                  |
+| ID   | Nome do Teste                          | Pré-requisito        | Passos                                                                                                      | Resultado Esperado                                    |
+|------|----------------------------------------|----------------------|-------------------------------------------------------------------------------------------------------------|-------------------------------------------------------|
+| T01  | Login válido                           | App instalado        | - Abrir app<br>- Preencher usuário/senha<br>- Clicar em Login                                                | Tela inicial do sistema visível                       |
+| T02  | Cadastro de cliente                    | Login realizado      | - Acessar menu Cadastro<br>- Preencher dados<br>- Salvar                                                     | Mensagem de sucesso, cliente cadastrado               |
+| T03  | Fechamento de caixa                    | Login realizado      | - Abrir módulo Caixa<br>- Realizar fechamento<br>- Confirmar                                                 | Caixa fechado com sucesso                             |
+| T04  | Emissão de nota fiscal                 | Login realizado      | - Acessar módulo de NF<br>- Preencher dados obrigatórios<br>- Emitir NF                                      | Nota fiscal emitida com sucesso                       |
+| T05  | Múltiplas formas de pagamento variadas | NF emitida com êxito | - Selecionar vendas<br>- Definir formas de pagamento (crédito, débito, dinheiro, boleto e PIX)<br>- Confirmar | Pagamento registrado corretamente em múltiplas formas |
+
 
 ---
 
